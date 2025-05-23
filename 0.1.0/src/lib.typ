@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.5.7": diagram, node, edge
+#import "deps.typ": *
 
 // font style
 // chinese text
@@ -21,6 +21,7 @@
   corner-radius: 4pt,
   height: height,
 )
+
 // circle node
 #let onode(sym, label, height: 1em) = node(
   sym,
@@ -172,10 +173,10 @@
   kind: "poly",
 )
 
-#let sys-block(
-  transfer: "",
-  input: "",
-  output: "",
+#let block-open(
+  transfer: none,
+  input: none,
+  output: none,
   width: 2,
   height: 2em,
 ) = diagram(
@@ -193,48 +194,49 @@
   arrow(O2, O3, output),
 )
 
-#let sys-block2(
-  transfer: "",
-  transfer2: "",
-  input: "",
-  output: "",
-  output2: "",
-  loss: "",
-  reference: "",
+#let block-closed(
+  transfer: none,
+  transfer2: none,
+  input: none,
+  output: none,
+  output2: none,
+  loss: none,
+  reference: none,
 ) = diagram(
   spacing: (1.5em, 1.5em),
   node-stroke: 1pt,
   mark-scale: 80%,
   let line = 0.5,
   let start = 1,
+  let dist-rl = reference.body.children.len() * 0.8,
+  let dist-lc = input.body.children.len() * 1.4,
   let (R, L, C) = (
     (start, line),
-    (start + 1.5, line),
-    (start + 5.5, line),
+    (start + dist-rl, line),
+    (start + dist-lc, line),
   ),
-  let H = (start + 5.5, line + 1.25),
-  rnode(R, reference),
-  onode(L, ""),
+  let H = (start + dist-lc, line + 1.25),
+  onode(L, none),
   label((start + 1.5, line - 0.75), loss),
   label((start + 1.1, line - 0.25), text("+", size: 0.8em)),
   label((start + 1.3, line + 0.35), text("-", size: 1.2em)),
   rnode(C, transfer),
   rnode(H, transfer2),
-  arrow(R, L, ""),
+  arrow(R, L, text(reference, size: 0.6em)),
   arrow(L, C, text(input, size: 0.6em)),
   uturn-v(C, H, text(output, size: 0.6em)),
   arrow(H, L, text(output2, size: 0.6em), label-pos: 0.25, corner: right),
 )
 
 #let sys-open(
-  controler: "",
-  actuator: "",
-  process: "",
-  input: "",
-  output: "",
-  output2: "",
-  output3: "",
-  subunit: "",
+  controler: none,
+  actuator: none,
+  process: none,
+  input: none,
+  output: none,
+  output2: none,
+  output3: none,
+  subunit: none,
 ) = diagram(
   spacing: (1.5em, 1.5em),
   node-stroke: 1pt,
@@ -260,19 +262,19 @@
   arrow(C, A, output),
   arrow(A, P, output2),
   arrow(P, O2, output3),
-  uturn(B1, B2, "", marks: "--", corner: left),
+  uturn(B1, B2, none, marks: "--", corner: left),
   label(M, subunit),
 )
 
 #let sys-closed(
-  controler: "",
-  actuator: "",
-  sensor: "",
-  input: "",
-  output: "",
-  output2: "",
-  loss: "",
-  reference: "",
+  controler: none,
+  actuator: none,
+  sensor: none,
+  input: none,
+  output: none,
+  output2: none,
+  loss: none,
+  reference: none,
 ) = diagram(
   spacing: (1.5em, 1.5em),
   node-stroke: 1pt,
@@ -287,16 +289,16 @@
   ),
   let S = (start + 4.5, line + 1.25),
   rnode(R, reference),
-  onode(O, ""),
+  onode(O, none),
   label((start + 2, line - 0.75), loss),
-  label((start + 1.6, line - 0.25), text("+", size: 0.8em)),
+  label((start + 1.6, line + label-line), text("+", size: 0.8em)),
   label((start + 1.8, line + 0.35), text("-", size: 1.2em)),
   rnode(T, controler),
   rnode(S, sensor),
   rnode(A, actuator),
-  arrow(R, O, ""),
+  arrow(R, O, none),
   arrow(O, T, input),
   arrow(T, A, output),
-  arrow(A, S, "", corner: right),
+  arrow(A, S, none, corner: right),
   arrow(S, O, output2, label-pos: 0.6, corner: right),
 )
