@@ -291,7 +291,7 @@
   rnode(R, reference),
   onode(O, none),
   label((start + 2, line - 0.75), loss),
-  label((start + 1.6, line + label-line), text("+", size: 0.8em)),
+  label((start + 1.6, line), text("+", size: 0.8em)),
   label((start + 1.8, line + 0.35), text("-", size: 1.2em)),
   rnode(T, controler),
   rnode(S, sensor),

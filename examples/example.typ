@@ -5,7 +5,7 @@
 == Single blocks
 
 #figure(
-  sys-block(
+  block-open(
     transfer: $frac(D G, 1 + H D G)$,
     input: $V$,
     output: $X$,
@@ -21,7 +21,7 @@
 == Transfer blocks
 
 #figure(
-  sys-block2(
+  block-closed(
     transfer: $D(s)G(s)$,
     transfer2: $H(s)$,
     input: $V(s)-X(s)H(s)$,
