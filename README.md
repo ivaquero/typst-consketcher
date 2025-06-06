@@ -10,10 +10,10 @@ Import `consketcher` from the `@preview` namespace.
 #import "@preview/consketcher:0.1.0": *
 ```
 
-![example](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/0.1.0/example.png)
-![example2](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/0.1.0/example2.png)
+![example](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example.png)
+![example2](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example2.png)
 
-For more details, see [examples.typ](https://github.com/ivaquero/typst-consketcher/blob/main/0.1.0/examples/example.typ).
+For more details, see [examples.typ](https://github.com/ivaquero/typst-consketcher/blob/main/examples/example.typ).
 
 ## Clone Official Repository
 
