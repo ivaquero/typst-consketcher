@@ -11,11 +11,12 @@ Import `consketcher` from the `@preview` namespace.
 ```
 
 ![example](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example.png)
+
 ![example2](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example2.png)
 
 For more details, see [examples.typ](https://github.com/ivaquero/typst-consketcher/blob/main/examples/example.typ).
 
-## Clone Official Repository
+## Clone the Repository
 
 To compile, please refer to the guide on [typst-packages](https://github.com/typst/packages) and clone this repository to your `@local` workspace:
 
