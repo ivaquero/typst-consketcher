@@ -1,4 +1,5 @@
-#import "components.typ": *
+#import "edges.typ": *
+#import "nodes.typ": *
 #import "utils.typ": *
 
 #let _hpoint(start, line, offset) = (start + offset, line)
