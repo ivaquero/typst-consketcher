@@ -20,7 +20,6 @@
 }
 
 #let _register-node(sym, data) = draw.set-ctx(ctx => {
-  let ctx = ctx
   let state = _state(ctx)
   state.nodes.insert(_node-key(sym), data)
   ctx.shared-state.insert("consketcher", state)
@@ -49,6 +48,12 @@
   _register-node(sym, data) + body + _with-label(sym, label)
 )
 
+#let _is-right(value) = value == right or value == "right"
+
+#let _is-up(value) = value == up or value == "up"
+
+#let _is-down(value) = value == down or value == "down"
+
 #let _rect-corners(center, width, height) = {
   let half-width = width / 2
   let half-height = height / 2
@@ -61,37 +66,38 @@
 #let _triangle-points(center, width, height, dir) = {
   let half-width = width / 2
   let half-height = height / 2
-  if dir == right or dir == "right" {
+  let left-x = center.at(0) - half-width
+  let right-x = center.at(0) + half-width
+  let top-y = center.at(1) - half-height
+  let bottom-y = center.at(1) + half-height
+  if _is-right(dir) {
     (
-      (center.at(0) - half-width, center.at(1) + half-height),
-      (center.at(0) - half-width, center.at(1) - half-height),
-      (center.at(0) + half-width, center.at(1)),
+      (left-x, bottom-y),
+      (left-x, top-y),
+      (right-x, center.at(1)),
     )
-  } else if dir == up or dir == "up" {
+  } else if _is-up(dir) {
     (
-      (center.at(0) - half-width, center.at(1) - half-height),
-      (center.at(0) + half-width, center.at(1) - half-height),
-      (center.at(0), center.at(1) + half-height),
+      (left-x, top-y),
+      (right-x, top-y),
+      (center.at(0), bottom-y),
     )
-  } else if dir == down or dir == "down" {
+  } else if _is-down(dir) {
     (
-      (center.at(0) - half-width, center.at(1) + half-height),
-      (center.at(0) + half-width, center.at(1) + half-height),
-      (center.at(0), center.at(1) - half-height),
+      (left-x, bottom-y),
+      (right-x, bottom-y),
+      (center.at(0), top-y),
     )
   } else {
     (
-      (center.at(0) + half-width, center.at(1) + half-height),
-      (center.at(0) + half-width, center.at(1) - half-height),
-      (center.at(0) - half-width, center.at(1)),
+      (right-x, bottom-y),
+      (right-x, top-y),
+      (left-x, center.at(1)),
     )
   }
 }
 
-#let _offset-point(point, offset) = (
-  point.at(0) + offset.at(0),
-  point.at(1) + offset.at(1),
-)
+#let _offset-point(point, offset) = _add(point, offset)
 
 #let _as-offset(x, y) = if type(y) == array {
   y
@@ -197,12 +203,16 @@
 }
 
 #let _path-points(n1, n2, corner: none) = {
-  if n1.at(0) == n2.at(0) or n1.at(1) == n2.at(1) or corner == none {
+  let x1 = n1.at(0)
+  let y1 = n1.at(1)
+  let x2 = n2.at(0)
+  let y2 = n2.at(1)
+  if x1 == x2 or y1 == y2 or corner == none {
     (n1, n2)
-  } else if corner == right or corner == "right" {
-    (n1, (n1.at(0), n2.at(1)), n2)
+  } else if _is-right(corner) {
+    (n1, (x1, y2), n2)
   } else {
-    (n1, (n2.at(0), n1.at(1)), n2)
+    (n1, (x2, y1), n2)
   }
 }
 
@@ -271,7 +281,7 @@
     point
   } else {
     let normal = (-dir.at(1) / length, dir.at(0) / length)
-    let signed-offset = if side == right or side == "right" {
+    let signed-offset = if _is-right(side) {
       -offset
     } else {
       offset
@@ -350,35 +360,26 @@
   height,
   offset: none,
   vertical: false,
-) = if vertical {
-  if offset == none {
-    (
-      n1,
-      (n1.at(0) + height, n1.at(1)),
-      (n2.at(0) + height, n2.at(1)),
-      n2,
-    )
+) = {
+  let x1 = n1.at(0)
+  let y1 = n1.at(1)
+  let x2 = n2.at(0)
+  let y2 = n2.at(1)
+  if vertical {
+    let turn-x = x1 + height
+    if offset == none {
+      (n1, (turn-x, y1), (x2 + height, y2), n2)
+    } else {
+      let turn-y = y1 - offset
+      (n1, (turn-x, turn-y), (x2, y2 - offset), n2)
+    }
   } else {
-    (
-      n1,
-      (n1.at(0) + height, n1.at(1) - offset),
-      (n2.at(0), n2.at(1) - offset),
-      n2,
-    )
+    let turn-y = y1 + height
+    if offset == none {
+      (n1, (x1, turn-y), (x2, y2 + height), n2)
+    } else {
+      let turn-x = x2 - offset
+      (n1, (x1, turn-y), (turn-x, turn-y), (turn-x, y2), n2)
+    }
   }
-} else if offset == none {
-  (
-    n1,
-    (n1.at(0), n1.at(1) + height),
-    (n2.at(0), n2.at(1) + height),
-    n2,
-  )
-} else {
-  (
-    n1,
-    (n1.at(0), n1.at(1) + height),
-    (n2.at(0) - offset, n2.at(1) + height),
-    (n2.at(0) - offset, n2.at(1)),
-    n2,
-  )
 }

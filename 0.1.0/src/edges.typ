@@ -115,43 +115,10 @@
   )
 })
 
-#let _uturn-maker(vertical: false, default-height: 1.25) = {
-  let fn(
-    n1,
-    n2,
-    label,
-    label-pos: 0.15,
-    label-side: left,
-    marks: "-|>",
-    height: default-height,
-    corner: right,
-    corner-radius: 4pt,
-    stroke: auto,
-    name: none,
-    ..options,
-  ) = {
-    let _ = (corner, corner-radius)
-    _uturn(
-      n1,
-      n2,
-      label,
-      label-pos,
-      label-side,
-      marks,
-      height,
-      vertical: vertical,
-      stroke: stroke,
-      name: name,
-      ..options,
-    )
-  }
-  fn
-}
-
-#let _uturn-offset-maker(
+#let _uturn-maker(
   vertical: false,
   default-height: 1.25,
-  default-offset: 1,
+  default-offset: none,
 ) = {
   let fn(
     n1,
@@ -189,12 +156,12 @@
 
 #let uturn = _uturn-maker()
 
-#let uturn2 = _uturn-offset-maker()
+#let uturn2 = _uturn-maker(default-offset: 1)
 
 #let uturn-v = _uturn-maker(vertical: true, default-height: 2.5)
 
 #let uturn_v = uturn-v
 
-#let uturn2-v = _uturn-offset-maker(vertical: true, default-height: 2.5)
+#let uturn2-v = _uturn-maker(vertical: true, default-height: 2.5, default-offset: 1)
 
 #let uturn2_v = uturn2-v
