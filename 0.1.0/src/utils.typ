@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.5.8": diagram, node
+#import "@preview/fletcher:0.5.8": diagram
 
 // shared diagram style
 #let control-diagram(

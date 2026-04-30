@@ -1,24 +1,31 @@
 # Consketcher
 
-Draws Control Sketches using [fletcher](https://github.com/Jollywatt/typst-fletcher) and [CeTZ](https://github.com/cetz-package/cetz).
+Consketcher is a Typst package for drawing control-system sketches with
+[fletcher](https://github.com/Jollywatt/typst-fletcher).
 
-Consketcher provides ready-to-use control block diagrams, plus composable node and edge helpers for custom sketches.
+It provides:
 
-## Get Started
+- ready-to-use block and control-system templates
+- reusable nodes, labels, junctions, and edge helpers
+- small utilities for Chinese labels and automatic spacing
 
-Import `consketcher` from the `@preview` namespace.
+## Installation
+
+If you are using a published release, import it from `@preview`:
 
 ```typst
 #import "@preview/consketcher:0.1.0": *
 ```
 
-For local development, import it from the `@local` namespace.
+For local development, import it from `@local`:
 
 ```typst
 #import "@local/consketcher:0.1.0": *
 ```
 
-Create a simple open-loop block:
+## Quick Start
+
+### Open-loop block
 
 ```typst
 #block-open(
@@ -28,29 +35,53 @@ Create a simple open-loop block:
 )
 ```
 
-Create a closed-loop block:
+### Closed-loop block
 
 ```typst
 #block-closed(
-  transfer: $G(s)$,
+  transfer: $D(s)G(s)$,
   transfer2: $H(s)$,
-  reference: $R(s)$,
-  input: $E(s)$,
-  output: $Y(s)$,
-  output2: $B(s)$,
-  loss: [Error],
+  input: $V(s)-X(s)H(s)$,
+  output: $X(s)$,
+  output2: $X(s)H(s)$,
+  loss: "Loss",
+  reference: $V(s)$,
 )
 ```
 
-![example](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example.png)
+### Closed-loop control system
 
-![example2](https://raw.githubusercontent.com/ivaquero/typst-consketcher/refs/heads/main/examples/example2.png)
+```typst
+#sys-closed(
+  controler: ctext("控制器"),
+  actuator: ctext("执行器"),
+  sensor: ctext("传感器"),
+  input: ctext("指令信号"),
+  output: ctext("执行信号"),
+  output2: ctext("传感信号"),
+  loss: ctext("损失函数"),
+  reference: ctext("校正信号"),
+)
+```
 
-For more details, see [examples.typ](https://github.com/ivaquero/typst-consketcher/blob/main/examples/example.typ).
+![Open-loop example](examples/example.png)
 
-## Diagram Templates
+![Closed-loop example](examples/example2.png)
 
-### Blocks
+For complete examples, see
+[examples/example.typ](https://github.com/ivaquero/typst-consketcher/blob/main/examples/example.typ).
+
+## API Overview
+
+Consketcher exports everything from `0.1.0/src/lib.typ`, which re-exports:
+
+- `src/charts.typ`
+- `src/components.typ`
+- `src/utils.typ`
+
+### Diagram Templates
+
+These are the highest-level entry points.
 
 ```typst
 #block-open(
@@ -61,9 +92,6 @@ For more details, see [examples.typ](https://github.com/ivaquero/typst-consketch
   height: 2em,
   line: -2,
   start: 1,
-  spacing: (1.5em, 1.5em),
-  node-stroke: 1pt,
-  mark-scale: 80%,
   node-maker: rnode,
   edge-maker: arrow,
 )
@@ -84,17 +112,12 @@ For more details, see [examples.typ](https://github.com/ivaquero/typst-consketch
   input-gap: auto,
   feedback-height: 1.25,
   label-size: 0.6em,
-  spacing: (1.5em, 1.5em),
-  node-stroke: 1pt,
-  mark-scale: 80%,
   node-maker: rnode,
-  junction-maker: summing-junction,
+  ref-maker: reference,
   edge-maker: arrow,
   feedback-edge-maker: uturn-v,
 )
 ```
-
-### Control Systems
 
 ```typst
 #sys-open(
@@ -108,9 +131,6 @@ For more details, see [examples.typ](https://github.com/ivaquero/typst-consketch
   subunit: none,
   line: -2,
   start: -2,
-  spacing: (1.5em, 1.5em),
-  node-stroke: 1pt,
-  mark-scale: 80%,
   node-maker: rnode,
   edge-maker: arrow,
   boundary-edge-maker: uturn,
@@ -131,71 +151,213 @@ For more details, see [examples.typ](https://github.com/ivaquero/typst-consketch
   line: 0.5,
   start: 1,
   feedback-height: 1.25,
-  spacing: (1.5em, 1.5em),
-  node-stroke: 1pt,
-  mark-scale: 80%,
   node-maker: rnode,
-  junction-maker: summing-junction,
+  ref-maker: reference,
   edge-maker: arrow,
 )
 ```
 
-## Components
-
-Use these helpers inside `control-diagram(...)` or pass them into templates as maker functions.
-
-### Text and Layout
+Legacy high-level helpers are also exported:
 
 ```typst
-#ctext(label, size: .8em, font: "Songti SC", ..options)
-#control-diagram(spacing: (1.5em, 1.5em), node-stroke: 1pt, mark-scale: 80%, ..body)
+#closed-loop-block(plant)
+
+#compensated-loop-block(
+  first,
+  second,
+  third,
+  first-width: 5em,
+  second-width: 2em,
+  third-width: 6em,
+)
+```
+
+### Layout and Text Utilities
+
+```typst
+#control-diagram(
+  spacing: (1.5em, 1.5em),
+  node-stroke: 1pt,
+  mark-scale: 80%,
+  ..body,
+)
+
+#ctext(label, size: 0.8em, font: "Songti SC", ..options)
+
 #edge-label(body, size: 0.6em, ..options)
+
+#label-length(body, fallback: 1)
+
 #auto-gap(body, scale: 1, fallback: 1)
 ```
 
-### Nodes
+`ctext` is a convenience wrapper around `text(...)` with a Chinese-friendly
+default font.
+
+### Nodes and Markers
 
 ```typst
-#rnode(sym, label, height: 2em, corner-radius: 4pt, ..options)
+#rnode(sym, label, shape: rect, height: 2em, corner-radius: 4pt, ..options)
 
-#onode(sym, label, height: 1em, radius: 10pt, ..options)
-#label(sym, body, ..options)
+#onode(sym, label, shape: circle, height: 1em, radius: 10pt, ..options)
 
-#summing-junction(
+#gain-node(
   sym,
-  loss: none,
-  plus: text("+", size: 0.8em),
-  minus: text("-", size: 1.2em),
-  loss-offset: (0, -0.75),
-  plus-offset: (-0.4, -0.25),
-  minus-offset: (-0.2, 0.35),
+  label,
+  dir: left,
+  width: 4em,
+  height: 4em,
+  fit: 0.8,
+  ..options,
+)
+
+#formula-node(sym, body, width: 8em, height: 3em, ..options)
+
+#label(sym, body, stroke: none, ..options)
+
+#signed-node(
+  sym,
+  signs: (),
   node-maker: onode,
   label-maker: label,
   ..node-options,
+)
+
+#reference(
+  sym,
+  x-sign: "+",
+  y-sign: "-",
+  x-offset: -0.3,
+  y-offset: 0.3,
+  loss: none,
+  loss-offset: -0.5,
+  ..options,
+)
+
+#reference3(
+  sym,
+  x: "+",
+  top: "+",
+  bottom: "+",
+  x-offset: -0.25,
+  top-offset: -0.25,
+  bottom-offset: 0.25,
+  radius: 1.35em,
+  node-maker: onode,
+  label-maker: label,
+  ..node-options,
+)
+
+#dashed-box(
+  enclose,
+  stroke: (thickness: 0.5pt, dash: "dashed"),
+  inset: 1.5em,
+  fill: none,
+  corner-radius: 4pt,
+  ..options,
 )
 ```
 
 ### Edges
 
 ```typst
-#connector(n1, n2, marks: "-", label: none, label-pos: 0.5, label-side: left, corner: none, corner-radius: 4pt, ..options)
+#connector(
+  n1,
+  n2,
+  marks: "-",
+  label: none,
+  label-pos: 0.5,
+  label-side: left,
+  corner: none,
+  corner-radius: 4pt,
+  ..options,
+)
 
-#arrow(n1, n2, label, label-pos: 0.5, label-side: left, dashed: false, corner: none, corner-radius: none, ..options)
+#arrow(
+  n1,
+  n2,
+  label,
+  marks: none,
+  label-pos: 0.5,
+  label-side: left,
+  dashed: false,
+  corner: none,
+  corner-radius: none,
+  ..options,
+)
 
-#segment(n1, n2, label, label-pos: 0.5, label-side: left, dashed: false, corner: none, corner-radius: none, ..options)
+#segment(
+  n1,
+  n2,
+  label,
+  marks: none,
+  label-pos: 0.5,
+  label-side: left,
+  dashed: false,
+  corner: none,
+  corner-radius: none,
+  ..options,
+)
 
-#uturn(n1, n2, label, label-pos: 0.15, label-side: left, marks: "-|>", height: 1.25, corner: right, corner-radius: 4pt, ..options)
+#uturn(
+  n1,
+  n2,
+  label,
+  label-pos: 0.15,
+  label-side: left,
+  marks: "-|>",
+  height: 1.25,
+  corner: right,
+  corner-radius: 4pt,
+  ..options,
+)
 
-#uturn2(n1, n2, label, label-pos: 0.15, label-side: left, marks: "-|>", height: 1.25, corner: right, corner-radius: 4pt, offset: 1, ..options)
+#uturn2(
+  n1,
+  n2,
+  label,
+  label-pos: 0.15,
+  label-side: left,
+  marks: "-|>",
+  height: 1.25,
+  corner: right,
+  corner-radius: 4pt,
+  offset: 1,
+  ..options,
+)
 
-#uturn-v(n1, n2, label, label-pos: 0.15, label-side: left, marks: "-|>", height: 2.5, corner: right, corner-radius: 4pt, ..options)
+#uturn-v(
+  n1,
+  n2,
+  label,
+  label-pos: 0.15,
+  label-side: left,
+  marks: "-|>",
+  height: 2.5,
+  corner: right,
+  corner-radius: 4pt,
+  ..options,
+)
 
-#uturn2-v(n1, n2, label, label-pos: 0.15, label-side: left, marks: "-|>", height: 2.5, corner: right, corner-radius: 4pt, offset: 1, ..options)
+#uturn2-v(
+  n1,
+  n2,
+  label,
+  label-pos: 0.15,
+  label-side: left,
+  marks: "-|>",
+  height: 2.5,
+  corner: right,
+  corner-radius: 4pt,
+  offset: 1,
+  ..options,
+)
 ```
 
 ## Customization
 
-Template functions are composable. Pass custom maker functions to change node, edge, label, or summing-junction behavior without rewriting a whole diagram.
+The template functions are composable. You can pass custom maker functions to
+change how nodes, references, or edges are drawn.
 
 ```typst
 #let thick-arrow(n1, n2, body, ..options) = arrow(
@@ -210,35 +372,38 @@ Template functions are composable. Pass custom maker functions to change node, e
   transfer: $G(s)$,
   input: $u$,
   output: $y$,
-  spacing: (2em, 1.2em),
-  node-maker: rnode.with(corner-radius: 2pt),
   edge-maker: thick-arrow,
 )
 ```
 
-The source is split into focused modules:
+For closed-loop diagrams, you can also replace the summing-junction maker
+through `ref-maker`.
 
-- `src/utils.typ`: shared diagram wrapper, Chinese text helper, and label measurement.
-- `src/components.typ`: reusable nodes, labels, summing junctions, and edges.
-- `src/charts.typ`: high-level block and control-system templates.
+## Repository Layout
 
-## Clone the Repository
+- `0.1.0/src/lib.typ`: ready-made diagram templates
+- `0.1.0/src/utils.typ`: shared layout and text helpers
+- `0.1.0/src/components.typ`: nodes, references, labels, and edge helpers
+- `examples/example.typ`: usage examples
 
-To compile, please refer to the guide on [typst-packages](https://github.com/typst/packages) and clone this repository to your `@local` workspace:
+## Local Development
 
-- Linux：
+To use the package from `@local`, clone the repository into your local Typst
+package workspace:
+
+- Linux:
   - `$XDG_DATA_HOME/typst/packages/local`
   - `~/.local/share/typst/packages/local`
-- macOS：`~/Library/Application\ Support/typst/packages/local`
-- Windows：`%APPDATA%/typst/packages/local`
+- macOS: `~/Library/Application Support/typst/packages/local`
+- Windows: `%APPDATA%/typst/packages/local`
 
-Clone the [consketcher](https://github.com/ivaquero/typst-consketcher) repository in the above path
+Then clone the repository as `consketcher`:
 
 ```bash
 git clone https://github.com/ivaquero/typst-consketcher consketcher
 ```
 
-and then import it in the document
+and import it with:
 
 ```typst
 #import "@local/consketcher:0.1.0": *
