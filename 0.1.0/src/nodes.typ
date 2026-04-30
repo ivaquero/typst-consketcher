@@ -113,7 +113,7 @@
   let body = node-maker(sym, none, ..node-options)
   for sign in signs {
     if sign.body != none {
-      body += label-maker(_offset-point(sym, sign.offset), sign.body)
+      body += label-maker(_add(sym, sign.offset), sign.body)
     }
   }
   draw.scope(body)

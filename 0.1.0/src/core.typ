@@ -1,5 +1,6 @@
 #import "@preview/cetz:0.5.0": draw, util
 
+// Shared state and node registration.
 #let _state(ctx) = ctx.shared-state.at(
   "consketcher",
   default: (
@@ -38,15 +39,14 @@
   util.measure(ctx, body)
 }
 
-#let _with-label(sym, label) = if label == none {
-  ()
-} else {
-  draw.content(sym, label)
+#let _register-shape(sym, data, body, label: none) = {
+  let shape = _register-node(sym, data) + body
+  if label == none {
+    shape
+  } else {
+    shape + draw.content(sym, label)
+  }
 }
-
-#let _register-shape(sym, data, body, label: none) = (
-  _register-node(sym, data) + body + _with-label(sym, label)
-)
 
 #let _is-right(value) = value == right or value == "right"
 
@@ -54,45 +54,48 @@
 
 #let _is-down(value) = value == down or value == "down"
 
+// Geometry helpers for node outlines and path construction.
 #let _rect-corners(center, width, height) = {
+  let (cx, cy) = center
   let half-width = width / 2
   let half-height = height / 2
   (
-    (center.at(0) - half-width, center.at(1) - half-height),
-    (center.at(0) + half-width, center.at(1) + half-height),
+    (cx - half-width, cy - half-height),
+    (cx + half-width, cy + half-height),
   )
 }
 
 #let _triangle-points(center, width, height, dir) = {
+  let (cx, cy) = center
   let half-width = width / 2
   let half-height = height / 2
-  let left-x = center.at(0) - half-width
-  let right-x = center.at(0) + half-width
-  let top-y = center.at(1) - half-height
-  let bottom-y = center.at(1) + half-height
+  let left-x = cx - half-width
+  let right-x = cx + half-width
+  let top-y = cy - half-height
+  let bottom-y = cy + half-height
   if _is-right(dir) {
     (
       (left-x, bottom-y),
       (left-x, top-y),
-      (right-x, center.at(1)),
+      (right-x, cy),
     )
   } else if _is-up(dir) {
     (
       (left-x, top-y),
       (right-x, top-y),
-      (center.at(0), bottom-y),
+      (cx, bottom-y),
     )
   } else if _is-down(dir) {
     (
       (left-x, bottom-y),
       (right-x, bottom-y),
-      (center.at(0), top-y),
+      (cx, top-y),
     )
   } else {
     (
       (right-x, bottom-y),
       (right-x, top-y),
-      (left-x, center.at(1)),
+      (left-x, cy),
     )
   }
 }
@@ -107,7 +110,6 @@
 #let _sub(a, b) = (a.at(0) - b.at(0), a.at(1) - b.at(1))
 #let _scale(v, factor) = (v.at(0) * factor, v.at(1) * factor)
 #let _cross(a, b) = a.at(0) * b.at(1) - a.at(1) * b.at(0)
-#let _offset-point(point, offset) = _add(point, offset)
 
 #let _segment-length(a, b) = calc.sqrt(
   calc.pow(b.at(0) - a.at(0), 2) + calc.pow(b.at(1) - a.at(1), 2),
@@ -115,8 +117,10 @@
 
 #let _trim-rect(node, toward) = {
   let center = node.center
-  let dx = toward.at(0) - center.at(0)
-  let dy = toward.at(1) - center.at(1)
+  let (cx, cy) = center
+  let (tx, ty) = toward
+  let dx = tx - cx
+  let dy = ty - cy
   if dx == 0 and dy == 0 {
     center
   } else {
@@ -134,16 +138,18 @@
       scale-y
     }
     (
-      center.at(0) + dx * scale,
-      center.at(1) + dy * scale,
+      cx + dx * scale,
+      cy + dy * scale,
     )
   }
 }
 
 #let _trim-circle(node, toward) = {
   let center = node.center
-  let dx = toward.at(0) - center.at(0)
-  let dy = toward.at(1) - center.at(1)
+  let (cx, cy) = center
+  let (tx, ty) = toward
+  let dx = tx - cx
+  let dy = ty - cy
   if dx == 0 and dy == 0 {
     center
   } else {
@@ -151,8 +157,8 @@
       (dx * dx) / (node.rx * node.rx) + (dy * dy) / (node.ry * node.ry),
     )
     (
-      center.at(0) + dx / scale,
-      center.at(1) + dy / scale,
+      cx + dx / scale,
+      cy + dy / scale,
     )
   }
 }
@@ -199,10 +205,8 @@
 }
 
 #let _path-points(n1, n2, corner: none) = {
-  let x1 = n1.at(0)
-  let y1 = n1.at(1)
-  let x2 = n2.at(0)
-  let y2 = n2.at(1)
+  let (x1, y1) = n1
+  let (x2, y2) = n2
   if x1 == x2 or y1 == y2 or corner == none {
     (n1, n2)
   } else if _is-right(corner) {
@@ -253,10 +257,12 @@
           let start = points.at(i)
           let stop = points.at(i + 1)
           let local = if length == 0 { 0 } else { (target - walked) / length }
+          let (start-x, start-y) = start
+          let (stop-x, stop-y) = stop
           return (
             point: (
-              start.at(0) + (stop.at(0) - start.at(0)) * local,
-              start.at(1) + (stop.at(1) - start.at(1)) * local,
+              start-x + (stop-x - start-x) * local,
+              start-y + (stop-y - start-y) * local,
             ),
             dir: _sub(stop, start),
           )
@@ -272,19 +278,22 @@
 }
 
 #let _label-anchor(point, dir, side, offset) = {
+  let (px, py) = point
+  let (dx, dy) = dir
   let length = _segment-length((0, 0), dir)
   if length == 0 {
     point
   } else {
-    let normal = (-dir.at(1) / length, dir.at(0) / length)
+    let normal = (-dy / length, dx / length)
+    let (nx, ny) = normal
     let signed-offset = if _is-right(side) {
       -offset
     } else {
       offset
     }
     (
-      point.at(0) + normal.at(0) * signed-offset,
-      point.at(1) + normal.at(1) * signed-offset,
+      px + nx * signed-offset,
+      py + ny * signed-offset,
     )
   }
 }
@@ -324,16 +333,11 @@
   let trimmed = _trim-path(ctx, points)
   let defaults = _defaults(ctx)
   let stroke = if stroke == auto { defaults.node-stroke } else { stroke }
+  let is-dashed = dashed or (type(marks) == str and marks.starts-with("--"))
   let body = draw.line(
     ..trimmed,
     name: name,
-    stroke: _stroke(
-      stroke,
-      dashed: dashed
-        or (
-          type(marks) == str and marks.starts-with("--")
-        ),
-    ),
+    stroke: _stroke(stroke, dashed: is-dashed),
     mark: _mark(marks, defaults.mark-scale),
   )
 
@@ -357,10 +361,8 @@
   offset: none,
   vertical: false,
 ) = {
-  let x1 = n1.at(0)
-  let y1 = n1.at(1)
-  let x2 = n2.at(0)
-  let y2 = n2.at(1)
+  let (x1, y1) = n1
+  let (x2, y2) = n2
   if vertical {
     let turn-x = x1 + height
     if offset == none {

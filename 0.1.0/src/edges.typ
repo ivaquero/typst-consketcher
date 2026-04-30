@@ -87,6 +87,48 @@
   ..options,
 )
 
+#let edge(
+  ..points,
+  label: none,
+  marks: "-|>",
+  label-pos: 0.5,
+  label-side: left,
+  dashed: false,
+  stroke: auto,
+  name: none,
+  kind: auto,
+  corner: none,
+  corner-radius: auto,
+) = {
+  let _ = (kind, corner, corner-radius)
+  let points = points.pos()
+  assert(points.len() >= 2, message: "edge requires at least two points")
+
+  let parts = ()
+  for i in range(points.len() - 2) {
+    parts += segment(
+      points.at(i),
+      points.at(i + 1),
+      none,
+      dashed: dashed,
+      stroke: stroke,
+    )
+  }
+  parts += arrow(
+    points.at(-2),
+    points.at(-1),
+    label,
+    marks: marks,
+    label-pos: label-pos,
+    label-side: label-side,
+    dashed: dashed,
+    stroke: stroke,
+    name: name,
+  )
+
+  parts
+}
+
 #let _uturn(
   n1,
   n2,
