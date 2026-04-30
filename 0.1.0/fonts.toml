@@ -1,9 +1,9 @@
 [en]
-    context = "Helvetica Neue"
-    footer = "Times New Roman"
-    author = "Times New Roman"
+context = "Helvetica Neue"
+footer = "Times New Roman"
+author = "Times New Roman"
 
 [zh]
-    context = "Songti SC"
-    footer = "Kaiti SC"
-    author = "Kaiti SC"
+context = "Songti SC"
+footer = "Kaiti SC"
+author = "Kaiti SC"
