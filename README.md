@@ -1,7 +1,7 @@
 # Consketcher
 
 Consketcher is a Typst package for drawing control-system sketches with
-[fletcher](https://github.com/Jollywatt/typst-fletcher).
+[CeTZ](https://github.com/cetz-package/cetz).
 
 It provides:
 
@@ -75,7 +75,6 @@ For complete examples, see
 
 Consketcher exports everything from `0.1.0/src/lib.typ`, which re-exports:
 
-- `src/charts.typ`
 - `src/components.typ`
 - `src/utils.typ`
 

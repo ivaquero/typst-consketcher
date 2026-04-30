@@ -1,4 +1,4 @@
-#import "@preview/fletcher:0.5.8": diagram
+#import "@preview/cetz:0.5.0": canvas, draw
 
 // shared diagram style
 #let control-diagram(
@@ -6,12 +6,39 @@
   node-stroke: 1pt,
   mark-scale: 80%,
   ..body,
-) = diagram(
-  spacing: spacing,
-  node-stroke: node-stroke,
-  mark-scale: mark-scale,
-  ..body,
-)
+) = {
+  let raw-body = body.pos()
+  let body = ()
+  for item in raw-body {
+    if type(item) == function {
+      body.push(item)
+    } else if type(item) == array {
+      for sub in item {
+        if type(sub) == function {
+          body.push(sub)
+        }
+      }
+    }
+  }
+  let setup = draw.set-ctx(ctx => {
+    let ctx = ctx
+    ctx.shared-state.insert(
+      "consketcher",
+      (
+        nodes: (:),
+        defaults: (
+          node-stroke: node-stroke,
+          mark-scale: mark-scale,
+        ),
+      ),
+    )
+    ctx
+  })
+  canvas(
+    length: spacing.at(0),
+    setup + draw.scope(body),
+  )
+}
 
 // font style
 // chinese text
