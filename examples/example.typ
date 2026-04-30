@@ -1,4 +1,4 @@
-#import "../0.1.0/src/lib.typ": *
+#import "../0.1.0/src/charts.typ": *
 
 = Blocks
 
@@ -14,7 +14,7 @@
 
 ```typst
 #figure(
-  sys-block(transfer: $frac(D G, 1 + H D G)$, input: $V$, output: $X$)
+  block-open(transfer: $frac(D G, 1 + H D G)$, input: $V$, output: $X$)
 )
 ```
 
@@ -34,7 +34,7 @@
 
 ```typst
 #figure(
-  sys-block2(
+  block-closed(
     transfer: $D(s)G(s)$,
     transfer2: $H(s)$,
     input: $V(s)-X(s)H(s)$,
@@ -78,7 +78,7 @@
 )
 ```
 
-== Closed looop
+== Closed loop
 
 #figure(
   sys-closed(
