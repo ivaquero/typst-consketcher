@@ -14,7 +14,7 @@ It provides:
 If you are using a published release, import it from `@preview`:
 
 ```typst
-#import "@preview/consketcher:0.1.0": *
+#import "@preview/consketcher:0.2.0": *
 ```
 
 For local development, import it from `@local`:
