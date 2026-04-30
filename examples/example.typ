@@ -1,4 +1,4 @@
-#import "../0.1.0/src/charts.typ": *
+#import "@local/consketcher:0.1.0": *
 
 = Blocks
 

@@ -75,6 +75,7 @@ For complete examples, see
 
 Consketcher exports everything from `0.1.0/src/lib.typ`, which re-exports:
 
+- `src/charts.typ`
 - `src/components.typ`
 - `src/utils.typ`
 
@@ -380,9 +381,13 @@ through `ref-maker`.
 
 ## Repository Layout
 
-- `0.1.0/src/lib.typ`: ready-made diagram templates
-- `0.1.0/src/utils.typ`: shared layout and text helpers
-- `0.1.0/src/components.typ`: nodes, references, labels, and edge helpers
+- `0.1.0/src/lib.typ`: package entrypoint and export hub
+- `0.1.0/src/charts.typ`: ready-made block and control-system templates
+- `0.1.0/src/components.typ`: compatibility barrel that re-exports drawing helpers
+- `0.1.0/src/nodes.typ`: nodes, labels, references, and marker helpers
+- `0.1.0/src/edges.typ`: connectors, arrows, and feedback paths
+- `0.1.0/src/core.typ`: shared CeTZ state, geometry, and path utilities
+- `0.1.0/src/utils.typ`: canvas setup, text helpers, and spacing helpers
 - `examples/example.typ`: usage examples
 
 ## Local Development

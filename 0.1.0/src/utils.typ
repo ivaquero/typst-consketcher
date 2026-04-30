@@ -1,5 +1,36 @@
 #import "@preview/cetz:0.5.0": canvas, draw
 
+#let _drawing-elements(items) = {
+  let elements = ()
+  for item in items {
+    if type(item) == function {
+      elements.push(item)
+    } else if type(item) == array {
+      for sub in item {
+        if type(sub) == function {
+          elements.push(sub)
+        }
+      }
+    }
+  }
+  elements
+}
+
+#let _setup-state(node-stroke, mark-scale) = draw.set-ctx(ctx => {
+  let ctx = ctx
+  ctx.shared-state.insert(
+    "consketcher",
+    (
+      nodes: (:),
+      defaults: (
+        node-stroke: node-stroke,
+        mark-scale: mark-scale,
+      ),
+    ),
+  )
+  ctx
+})
+
 // shared diagram style
 #let control-diagram(
   spacing: (1.5em, 1.5em),
@@ -7,36 +38,10 @@
   mark-scale: 80%,
   ..body,
 ) = {
-  let raw-body = body.pos()
-  let body = ()
-  for item in raw-body {
-    if type(item) == function {
-      body.push(item)
-    } else if type(item) == array {
-      for sub in item {
-        if type(sub) == function {
-          body.push(sub)
-        }
-      }
-    }
-  }
-  let setup = draw.set-ctx(ctx => {
-    let ctx = ctx
-    ctx.shared-state.insert(
-      "consketcher",
-      (
-        nodes: (:),
-        defaults: (
-          node-stroke: node-stroke,
-          mark-scale: mark-scale,
-        ),
-      ),
-    )
-    ctx
-  })
+  let diagram-body = _drawing-elements(body.pos())
   canvas(
     length: spacing.at(0),
-    setup + draw.scope(body),
+    _setup-state(node-stroke, mark-scale) + draw.scope(diagram-body),
   )
 }
 
