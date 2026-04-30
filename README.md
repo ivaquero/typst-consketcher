@@ -1,7 +1,7 @@
 # Consketcher
 
 Consketcher is a Typst package for drawing control-system sketches with
-[CeTZ](https://github.com/cetz-package/cetz).
+[fletcher](https://github.com/Jollywatt/typst-fletcher).
 
 It provides:
 
@@ -68,16 +68,23 @@ For local development, import it from `@local`:
 
 ![Closed-loop example](examples/example2.png)
 
-For complete examples, see
-[examples/example.typ](https://github.com/ivaquero/typst-consketcher/blob/main/examples/example.typ).
+For complete examples, see [examples/example.typ](examples/example.typ).
 
 ## API Overview
 
-Consketcher exports everything from `0.1.0/src/lib.typ`, which re-exports:
+Consketcher exports everything from `0.1.0/src/lib.typ`.
 
-- `src/charts.typ`
-- `src/components.typ`
-- `src/utils.typ`
+The public API is organized into a few focused modules:
+
+- `src/charts.typ`: high-level block and control-system templates
+- `src/nodes.typ`: nodes, labels, references, and marker helpers
+- `src/edges.typ`: connectors, arrows, and feedback paths
+- `src/utils.typ`: text helpers and automatic spacing utilities
+- `src/components.typ`: compatibility barrel that re-exports `nodes.typ` and `edges.typ`
+
+In other words, `lib.typ` is the entrypoint, `charts.typ` is where the
+ready-made diagrams live, and the lower-level drawing primitives are split by
+responsibility into `nodes.typ` and `edges.typ`.
 
 ### Diagram Templates
 
@@ -192,7 +199,8 @@ Legacy high-level helpers are also exported:
 ```
 
 `ctext` is a convenience wrapper around `text(...)` with a Chinese-friendly
-default font.
+default font. `label-length` and `auto-gap` are useful when you want custom
+diagram templates to adapt spacing to label content.
 
 ### Nodes and Markers
 
@@ -357,7 +365,8 @@ default font.
 ## Customization
 
 The template functions are composable. You can pass custom maker functions to
-change how nodes, references, or edges are drawn.
+change how nodes, references, or edges are drawn. This is the main extension
+point when you want the built-in layouts but different visual styling.
 
 ```typst
 #let thick-arrow(n1, n2, body, ..options) = arrow(
@@ -386,9 +395,10 @@ through `ref-maker`.
 - `0.1.0/src/components.typ`: compatibility barrel that re-exports drawing helpers
 - `0.1.0/src/nodes.typ`: nodes, labels, references, and marker helpers
 - `0.1.0/src/edges.typ`: connectors, arrows, and feedback paths
-- `0.1.0/src/core.typ`: shared CeTZ state, geometry, and path utilities
-- `0.1.0/src/utils.typ`: canvas setup, text helpers, and spacing helpers
+- `0.1.0/src/utils.typ`: text helpers and spacing helpers
 - `examples/example.typ`: usage examples
+- `examples/example.png` and `examples/example2.png`: rendered example previews
+- `articles/lib.pdf`: generated API reference preview
 
 ## Local Development
 
@@ -412,3 +422,10 @@ and import it with:
 ```typst
 #import "@local/consketcher:0.1.0": *
 ```
+
+If you are editing the package itself, the most common workflow is:
+
+1. Put new reusable graph primitives in `nodes.typ` or `edges.typ`.
+2. Put new ready-made control-diagram layouts in `charts.typ`.
+3. Re-export only stable public entry points through `lib.typ`.
+4. Keep `components.typ` as a compatibility layer instead of growing it with new logic.
