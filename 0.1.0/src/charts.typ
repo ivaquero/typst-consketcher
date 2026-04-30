@@ -45,7 +45,7 @@
   node-stroke: 1pt,
   mark-scale: 80%,
   node-maker: rnode,
-  junction-maker: summing-junction,
+  ref-maker: reference,
   edge-maker: arrow,
   feedback-edge-maker: uturn-v,
 ) = control-diagram(
@@ -68,7 +68,7 @@
     (start + dist-lc, line),
   ),
   let H = (start + dist-lc, line + feedback-height),
-  junction-maker(
+  ref-maker(
     L,
     loss: loss,
     loss-offset: (1.5 - dist-rl, -0.75),
@@ -144,7 +144,7 @@
   node-stroke: 1pt,
   mark-scale: 80%,
   node-maker: rnode,
-  junction-maker: summing-junction,
+  ref-maker: reference,
   edge-maker: arrow,
 ) = control-diagram(
   spacing: spacing,
@@ -158,7 +158,7 @@
   ),
   let S = (start + 4.5, line + feedback-height),
   node-maker(R, reference),
-  junction-maker(
+  ref-maker(
     O,
     loss: loss,
     loss-offset: (0, -0.75),

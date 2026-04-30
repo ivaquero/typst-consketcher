@@ -42,14 +42,14 @@
   text(body, size: size, ..options)
 }
 
-#let summing-junction(
+#let reference(
   sym,
+  x-sign: "+",
+  y-sign: "-",
+  x-offset: -.3,
+  y-offset: .3,
   loss: none,
-  plus: text("+", size: 0.8em),
-  minus: text("-", size: 1.2em),
   loss-offset: (0, -0.75),
-  plus-offset: (-0.4, -0.25),
-  minus-offset: (-0.2, 0.35),
   node-maker: onode,
   label-maker: label,
   ..node-options,
@@ -60,12 +60,12 @@
     loss,
   )
   label-maker(
-    (sym.at(0) + plus-offset.at(0), sym.at(1) + plus-offset.at(1)),
-    plus,
+    (sym.at(0) + x-offset, sym.at(1)),
+    x-sign,
   )
   label-maker(
-    (sym.at(0) + minus-offset.at(0), sym.at(1) + minus-offset.at(1)),
-    minus,
+    (sym.at(0), sym.at(1) + y-offset),
+    y-sign,
   )
 }
 
